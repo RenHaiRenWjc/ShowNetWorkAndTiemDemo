@@ -47,44 +47,14 @@ public class MainActivity extends AppCompatActivity implements NetworkChangeUtil
 
 
     @Override
-    public void notifyNetChange(int level, String type) {
-        //wifi 返回来的等级是 1,2,3,4
-
-        tv01.setText("类型：" + type);
+    public void notifyNetLevelChange(int level) {
         tv02.setText("格子：" + level);
-        Log.i(TAG, "level=" + level);
-
-       /* if (type == null) {
-            return;
-        }*/
-        if (type.equalsIgnoreCase("wifi")) {
-            ib.setImageResource(wifiIcom[level]);
-        } else if (type.equalsIgnoreCase("2g")) {
-            ib.setImageResource(gsm2gIcom[level]);
-        } else if (type.equalsIgnoreCase("3g")) {
-            ib.setImageResource(gsm3gIcom[level]);
-        } else if (type.equalsIgnoreCase("4g")) {
-            ib.setImageResource(gsm4gIcom[level]);
-        }
     }
 
-
-   /* public void changeNewIcom() {
-        Log.i(TAG, "netype=" + (type);
-        if (netType == null) {
-            return;
-        }
-        if (netType.equalsIgnoreCase("wifi")) {
-            Log.i(TAG, "netype2=" + netType);
-            ib.setImageResource(wifiIcom[level]);
-        } else if (netType.equalsIgnoreCase("2g")) {
-            ib.setImageResource(gsm2gIcom[netLevel]);
-        } else if (netType.equalsIgnoreCase("3g")) {
-            ib.setImageResource(gsm3gIcom[netLevel]);
-        } else if (netType.equalsIgnoreCase("4g")) {
-            ib.setImageResource(gsm4gIcom[netLevel]);
-        }
-    }*/
-
+    @Override
+    public void notifyNetTypeChange(String type) {
+        tv01.setText(type);
+        Log.i(TAG, "type=" + type);
+    }
 
 }

@@ -11,7 +11,7 @@ import android.view.View;
 /**
  * TODO: document your custom view class.
  */
-public class MyView extends View implements NetworkChangeUtil.NetworkChangeListener {
+public class MyView extends View {
 
 
     private Paint paint;
@@ -21,7 +21,7 @@ public class MyView extends View implements NetworkChangeUtil.NetworkChangeListe
         super(context);
         mNetworkChangeUtil = new NetworkChangeUtil(context);
         mNetworkChangeUtil.RegisterReciverNetworkChanges();
-        mNetworkChangeUtil.setNetworkChangeListener(this);
+     //   mNetworkChangeUtil.setNetworkChangeListener(this);
 
     }
 
@@ -42,10 +42,7 @@ public class MyView extends View implements NetworkChangeUtil.NetworkChangeListe
     }
 
 
-    @Override
-    public void notifyNetChange(int level, String msg) {
 
-    }
 
 
 }

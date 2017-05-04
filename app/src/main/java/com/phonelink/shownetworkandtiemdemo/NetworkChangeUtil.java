@@ -58,7 +58,8 @@ public class NetworkChangeUtil {
             if (info != null && info.isConnected()) {
                 getNetworkType(info);
             } else {
-                netChangeListener.notifyNetChange(404, "网络没连接");
+                netChangeListener.notifyNetTypeChange("网络没连接");
+                // netChangeListener.notifyNetLevelChange(404);
             }
         }
     }
@@ -66,17 +67,11 @@ public class NetworkChangeUtil {
     private void getNetworkType(NetworkInfo info) {
         String netName = info.getTypeName();
         if (netName.equalsIgnoreCase("WIFI")) {
-            getWifiLevel();
-            netChangeListener.notifyNetChange(getWifiLevel(), "wifi");
+            netChangeListener.notifyNetLevelChange(getWifiLevel());
+            netChangeListener.notifyNetTypeChange("WIFI");
         } else if (netName.equalsIgnoreCase("MOBILE")) {
             int subType = info.getSubtype();
-            String mobileType = getNetworkMobileType(subType);
-            //信号强度
-            if (signalLevel != -1) {
-                netChangeListener.notifyNetChange(signalLevel, mobileType);
-            }
-
-
+            netChangeListener.notifyNetTypeChange(getNetworkMobileType(subType));
         }
     }
 
@@ -141,7 +136,6 @@ public class NetworkChangeUtil {
 
     private static final String TAG = "NetworkChangeUtil";
 
-    private int signalLevel = -1;
     PhoneStateListener myListener = new PhoneStateListener() {
         @Override
         public void onSignalStrengthsChanged(SignalStrength signalStrength) {
@@ -152,7 +146,8 @@ public class NetworkChangeUtil {
             }
             //  Get the GSM Signal Strength, valid values are (0-31, 99) as defined in TS
             int gsmSignalStrength = signalStrength.getGsmSignalStrength();
-            if (gsmSignalStrength < 3 || gsmSignalStrength == 99) {//-109
+            int signalLevel;
+            if (gsmSignalStrength < 2 || gsmSignalStrength == 99) {//-109
                 signalLevel = 0;
             } else if (gsmSignalStrength >= 15) {//-83
                 signalLevel = 3;
@@ -162,7 +157,7 @@ public class NetworkChangeUtil {
                 signalLevel = 1;
             }
             Log.i(TAG, "onSignalStrengthsChanged=" + signalLevel + ",gsm=" + gsmSignalStrength);
-
+            netChangeListener.notifyNetLevelChange(signalLevel);
         }
     };
 
@@ -174,7 +169,9 @@ public class NetworkChangeUtil {
     }
 
     public interface NetworkChangeListener {
-        void notifyNetChange(int level, String type);
+        void notifyNetLevelChange(int level);
+
+        void notifyNetTypeChange(String type);
     }
 
 
