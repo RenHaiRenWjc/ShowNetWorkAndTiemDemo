@@ -15,13 +15,13 @@ public class MyView extends View {
 
 
     private Paint paint;
-    private NetworkChangeUtil mNetworkChangeUtil;
+    private NetworkStrengthChangeUtil mNetworkStrengthChangeUtil;
 
     public MyView(Context context) {
         super(context);
-        mNetworkChangeUtil = new NetworkChangeUtil(context);
-        mNetworkChangeUtil.RegisterReciverNetworkChanges();
-     //   mNetworkChangeUtil.setNetworkChangeListener(this);
+        mNetworkStrengthChangeUtil = new NetworkStrengthChangeUtil(context);
+        mNetworkStrengthChangeUtil.RegisterReciverNetworkChanges();
+     //   mNetworkStrengthChangeUtil.setNetworkChangeListener(this);
 
     }
 
