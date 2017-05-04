@@ -15,7 +15,7 @@ import android.util.Log;
 
 /**
  * ClassName:com.phonelink.shownetworkandtiemdemo
- * Description:
+ * Description:网络变化
  * author:wjc on 2017/5/3 17:45
  */
 
@@ -27,8 +27,7 @@ public class NetworkChangeUtil {
         this.context = context;
         TelephonyManager telManager = (TelephonyManager)
                 context.getSystemService(Context.TELEPHONY_SERVICE);
-        telManager.listen(myLis, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
-
+        telManager.listen(myListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
     }
 
 
@@ -59,8 +58,7 @@ public class NetworkChangeUtil {
             if (info != null && info.isConnected()) {
                 getNetworkType(info);
             } else {
-                netChangeListener.notifyNetTypeChange("网络没连接");
-                netChangeListener.notifyNetLevelChange(404);
+                netChangeListener.notifyNetChange(404, "网络没连接");
             }
         }
     }
@@ -69,11 +67,16 @@ public class NetworkChangeUtil {
         String netName = info.getTypeName();
         if (netName.equalsIgnoreCase("WIFI")) {
             getWifiLevel();
-            netChangeListener.notifyNetLevelChange(getWifiLevel());
-            netChangeListener.notifyNetTypeChange("WIFI");
+            netChangeListener.notifyNetChange(getWifiLevel(), "wifi");
         } else if (netName.equalsIgnoreCase("MOBILE")) {
             int subType = info.getSubtype();
-            netChangeListener.notifyNetTypeChange(getNetworkMobileType(subType));
+            String mobileType = getNetworkMobileType(subType);
+            //信号强度
+            if (signalLevel != -1) {
+                netChangeListener.notifyNetChange(signalLevel, mobileType);
+            }
+
+
         }
     }
 
@@ -83,7 +86,7 @@ public class NetworkChangeUtil {
         WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
         if (wifiInfo.getBSSID() != null) {
-            int signalLevel = WifiManager.calculateSignalLevel(wifiInfo.getRssi(), 5);
+            int signalLevel = WifiManager.calculateSignalLevel(wifiInfo.getRssi(), 4);
             return signalLevel;
         }
         return -1;
@@ -91,7 +94,7 @@ public class NetworkChangeUtil {
 
     //获取网络信号
     private String getNetworkMobileType(int mobileType) {
-        String mobileName = "";
+        String mobileName = null;
         switch (mobileType) {
             case TelephonyManager.NETWORK_TYPE_GPRS:
 
@@ -129,7 +132,7 @@ public class NetworkChangeUtil {
                 mobileName = "4g";
                 break;
             case TelephonyManager.NETWORK_TYPE_UNKNOWN:
-                mobileName = "no";
+                mobileName = "NUKNOWN";
                 break;
         }
         Log.i(TAG, "getNetworkMobileType:" + mobileName);
@@ -138,7 +141,8 @@ public class NetworkChangeUtil {
 
     private static final String TAG = "NetworkChangeUtil";
 
-    PhoneStateListener myLis = new PhoneStateListener() {
+    private int signalLevel = -1;
+    PhoneStateListener myListener = new PhoneStateListener() {
         @Override
         public void onSignalStrengthsChanged(SignalStrength signalStrength) {
             super.onSignalStrengthsChanged(signalStrength);
@@ -148,20 +152,17 @@ public class NetworkChangeUtil {
             }
             //  Get the GSM Signal Strength, valid values are (0-31, 99) as defined in TS
             int gsmSignalStrength = signalStrength.getGsmSignalStrength();
-            int signalLevel;
-            if (gsmSignalStrength < 2 || gsmSignalStrength == 99) {//-109
+            if (gsmSignalStrength < 3 || gsmSignalStrength == 99) {//-109
                 signalLevel = 0;
             } else if (gsmSignalStrength >= 15) {//-83
-                signalLevel = 4;
-            } else if (gsmSignalStrength >= 9) {//-95
                 signalLevel = 3;
-            } else if (gsmSignalStrength >= 6) {//-101
+            } else if (gsmSignalStrength >= 7) {//-99
                 signalLevel = 2;
-            } else {//2---5
+            } else {//-101
                 signalLevel = 1;
             }
             Log.i(TAG, "onSignalStrengthsChanged=" + signalLevel + ",gsm=" + gsmSignalStrength);
-            netChangeListener.notifyNetLevelChange(signalLevel);
+
         }
     };
 
@@ -173,9 +174,7 @@ public class NetworkChangeUtil {
     }
 
     public interface NetworkChangeListener {
-        void notifyNetLevelChange(int level);
-
-        void notifyNetTypeChange(String type);
+        void notifyNetChange(int level, String type);
     }
 
 
